@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #0b0d12; }
+  body { font-family: "Inter", sans-serif; color: #f4f1ea; position: relative; }
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .glow { position: absolute; width: 1400px; height: 1400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,112,64,0.22), transparent 60%); left: -160px; top: 200px; }
+  .scene { position: absolute; left: 90px; right: 150px; top: 0; bottom: 0; opacity: 0; }
+  .mono { font-family: "JetBrains Mono", monospace; letter-spacing: 0.08em; }
+  .kicker { font-size: 34px; color: #e87040; text-transform: uppercase; }
+  .accent { color: #e87040; }
+
+  /* Scene 1: hook */
+  #s1 { display: flex; flex-direction: column; justify-content: center; }
+  #s1 .line { font-size: 104px; font-weight: 900; line-height: 1.02; letter-spacing: -0.03em; }
+  #s1 .big { font-size: 260px; font-weight: 900; color: #e87040; letter-spacing: -0.05em; line-height: 1; }
+  #s1 .sub { font-size: 52px; font-weight: 600; color: #b9b4aa; margin-top: 40px; line-height: 1.2; }
+
+  /* Scene 2: chart */
+  #s2 { padding-top: 230px; }
+  #s2 h2 { font-size: 76px; font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; margin: 24px 0 70px; }
+  .row { display: flex; align-items: center; height: 112px; }
+  .flag { font-family: "Noto Color Emoji"; font-size: 60px; width: 92px; }
+  .name { font-size: 34px; font-weight: 600; width: 190px; color: #d8d3c8; }
+  .barwrap { flex: 1; position: relative; height: 62px; }
+  .bar { position: absolute; left: 0; top: 0; height: 62px; border-radius: 8px; background: #e87040; }
+  .bar.low { background: #4a5263; }
+  .val { position: absolute; top: 6px; font-size: 42px; font-weight: 800; white-space: nowrap; }
+  .foot { margin-top: 30px; font-size: 24px; color: #7d7a73; }
+
+  /* Scene 3: versus */
+  #s3 { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+  .vs { display: flex; align-items: baseline; gap: 36px; }
+  .vs .flag { font-size: 110px; width: auto; }
+  .vs .amt { font-size: 150px; font-weight: 900; letter-spacing: -0.04em; }
+  .vs .amt.low { color: #8a92a4; }
+  .vsword { font-size: 48px; color: #7d7a73; margin: 20px 0 20px 8px; }
+  .x { font-size: 64px; font-weight: 800; margin-top: 70px; line-height: 1.15; }
+
+  /* Scene 4: takeaway */
+  #s4 { display: flex; flex-direction: column; justify-content: center; }
+  #s4 .t { font-size: 92px; font-weight: 900; line-height: 1.05; letter-spacing: -0.03em; }
+  #s4 .list { margin-top: 60px; font-size: 50px; font-weight: 600; color: #d8d3c8; line-height: 1.6; }
+  #s4 .list .flag { font-size: 50px; width: auto; margin-right: 18px; }
+  #s4 .cta { margin-top: 90px; display: inline-block; padding: 26px 40px; border: 3px solid #e87040; border-radius: 18px;
+    font-size: 44px; font-weight: 800; color: #e87040; }
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<div class="glow" id="glow"></div>
+
+<div class="scene" id="s1">
+  <div class="kicker mono">Same video. Same views.</div>
+  <div class="line" style="margin-top:40px">YouTube pays</div>
+  <div class="big" id="s1big">16×</div>
+  <div class="line">more</div>
+  <div class="sub">depending on <span class="accent">where</span> your viewers live.</div>
+</div>
+
+<div class="scene" id="s2">
+  <div class="kicker mono">Earnings per 1,000 views</div>
+  <h2>What YouTube pays in each country</h2>
+  <div id="rows"></div>
+  <div class="foot mono">Estimated long-form RPM, 2026 · third-party creator data</div>
+</div>
+
+<div class="scene" id="s3">
+  <div class="vs"><span class="flag">🇦🇺</span><span class="amt" id="auAmt">$11</span></div>
+  <div class="vsword mono">vs</div>
+  <div class="vs"><span class="flag">🇮🇳</span><span class="amt low" id="inAmt">$0.70</span></div>
+  <div class="x">India has <span class="accent">2×</span> more viewers than the US…<br>but pays <span class="accent">~14×</span> less per view.</div>
+</div>
+
+<div class="scene" id="s4">
+  <div class="kicker mono">The takeaway</div>
+  <div class="t">Make videos for the countries that <span class="accent">pay</span>.</div>
+  <div class="list">
+    <div><span class="flag">🇺🇸</span>USA · <span class="flag">🇦🇺</span>Australia</div>
+    <div><span class="flag">🇨🇦</span>Canada · <span class="flag">🇬🇧</span>UK</div>
+    <div style="color:#e87040">→ all speak English.</div>
+  </div>
+  <div class="cta">Follow for part 2: best niches 💰</div>
+</div>
+
+<script>
+const DATA = [
+  ["🇦🇺", "Australia", 11.0],
+  ["🇺🇸", "USA", 10.0],
+  ["🇨🇦", "Canada", 9.0],
+  ["🇬🇧", "UK", 6.5],
+  ["🇩🇪", "Germany", 6.0],
+  ["🇯🇵", "Japan", 2.75],
+  ["🇧🇷", "Brazil", 1.05],
+  ["🇮🇳", "India", 0.70],
+];
+const MAX = 11.0, BAR_MAX = 520;
+const rows = document.getElementById("rows");
+DATA.forEach(([f, n, v], i) => {
+  const r = document.createElement("div");
+  r.className = "row";
+  r.innerHTML = `<span class="flag">${f}</span><span class="name">${n}</span>
+    <div class="barwrap"><div class="bar ${v < 3 ? "low" : ""}" id="b${i}"></div><span class="val" id="v${i}"></span></div>`;
+  rows.appendChild(r);
+});
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = x => { x = clamp(x); return 1 - Math.pow(1 - x, 3); };
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const money = v => v < 3 ? "$" + v.toFixed(2) : "$" + v.toFixed(v % 1 ? 1 : 0);
+
+// scene windows [in, out] in seconds
+const S = { s1: [0, 3.6], s2: [3.6, 14.5], s3: [14.5, 19.5], s4: [19.5, 25] };
+function fade(id, t) {
+  const [a, b] = S[id], el = document.getElementById(id);
+  const o = Math.min(ease(prog(t, a, a + 0.4)), 1 - prog(t, b - 0.3, b));
+  el.style.opacity = t >= a && t <= b ? o : 0;
+  el.style.transform = `translateY(${(1 - ease(prog(t, a, a + 0.5))) * 50}px)`;
+}
+
+window.render = function (t) {
+  for (const id in S) fade(id, t);
+  document.getElementById("glow").style.transform = `translate(${Math.sin(t * 0.4) * 120}px, ${Math.cos(t * 0.3) * 160}px)`;
+
+  const pop = ease(prog(t, 0.6, 1.2));
+  document.getElementById("s1big").style.transform = `scale(${0.6 + 0.4 * pop})`;
+  document.getElementById("s1big").style.transformOrigin = "left center";
+
+  DATA.forEach(([, , v], i) => {
+    const p = ease(prog(t, 4.6 + i * 0.75, 5.8 + i * 0.75));
+    const w = (v / MAX) * BAR_MAX * p;
+    document.getElementById("b" + i).style.width = w + "px";
+    const val = document.getElementById("v" + i);
+    val.style.left = (w + 20) + "px";
+    val.style.opacity = p > 0.02 ? 1 : 0;
+    val.textContent = money(v * p);
+  });
+
+  const c = ease(prog(t, 15, 16.2));
+  document.getElementById("auAmt").textContent = "$" + Math.round(11 * c);
+  document.getElementById("inAmt").textContent = "$" + (0.7 * c).toFixed(2);
+};
+window.render(0);
+</script>
+</body>
+</html>
