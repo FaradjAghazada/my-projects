@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Qeydiyyat{% endblock %}
 {% block content %}
-<h1>Qeydiyyat</h1>
 <form method="POST" class="forma">
     <label for="email">Email</label>
     <input id="email" type="email" name="email" required>
     <label for="parol">Parol (ən az 8 simvol)</label>
     <input id="parol" type="password" name="parol" minlength="8" required>
-    <button class="duyme">Qeydiyyatdan keç</button>
+    <button>Qeydiyyatdan keç</button>
 </form>
 {% endblock %}

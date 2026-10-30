@@ -1,30 +1,33 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="hero">
-    <h1>Salam{% if istifadeci %}, {{ istifadeci.email }}{% endif %}! 👋</h1>
-    {% if temperatur is not none %}
-        <p class="hava">🌤️ Bakıda indi: <strong>{{ temperatur }}°C</strong></p>
-    {% endif %}
-</section>
+{% if temperatur is not none %}<p class="hava">Bakı: {{ temperatur }}°C</p>{% endif %}
 
-<h2>Yazılar (səhifədən)</h2>
-<div class="kartlar">
-    {% for y in yazilar %}
-        <article class="kart">
-            <h3><a href="{{ url_for('yazi', id=y.id) }}">{{ y.basliq }}</a></h3>
-            <p>{{ y.metn[:120] }}{% if y.metn|length > 120 %}…{% endif %}</p>
-            <small>{{ y.muellif.email }} · {{ y.yaradilib.strftime('%d.%m.%Y %H:%M') }}</small>
-        </article>
-    {% else %}
-        <p>Hələ yazı yoxdur. {% if istifadeci %}<a href="{{ url_for('yeni') }}">İlkini yaz!</a>{% endif %}</p>
-    {% endfor %}
+<form method="GET" class="axtaris">
+    <input name="q" value="{{ soz }}" placeholder="Axtar...">
+    <button>Axtar</button>
+</form>
+
+{% if istifadeci %}
+<form id="suretli" class="forma">
+    <input id="suretli-basliq" placeholder="Sürətli qeyd (səhifə yenilənmir)">
+    <button>Əlavə et</button>
+    <p id="suretli-xeta" class="xeta-metn"></p>
+</form>
+{% endif %}
+
+<div id="qeydler">
+{% for q in qeydler %}
+    <article class="kart" data-id="{{ q.id }}">
+        <h2><a href="{{ url_for('qeyd', id=q.id) }}">{{ q.basliq }}</a></h2>
+        <p>{{ q.metn }}</p>
+        <small>{{ q.muellif.email }} · {{ q.yaradilib.strftime('%d.%m.%Y %H:%M') }}</small>
+        {% if istifadeci and istifadeci.id == q.muellif_id %}
+            <button class="sil link-qirmizi">Sil</button>
+        {% endif %}
+    </article>
+{% else %}
+    <p>Qeyd yoxdur.</p>
+{% endfor %}
 </div>
-
-<h2>Yazılar (API + fetch ilə)</h2>
-<button id="yukle" class="duyme">API-dən yüklə</button>
-<ul id="api-siyahi"></ul>
 {% endblock %}
-
-{% block scripts %}
-<script src="{{ url_for('static', filename='app.js') }}"></script>
-{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='app.js') }}"></script>{% endblock %}

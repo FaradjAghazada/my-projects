@@ -1,48 +1,52 @@
-# Gün 12 — Qeydiyyat, login və təhlükəsizlik 🔐
+# Gün 12 — Qeydiyyat, login, təhlükəsizlik
 
-## 🎟️ Nağıl
+**Məqsəd:** istifadəçi hesabları və hər istifadəçinin yalnız öz qeydlərini idarə etməsi.
 
-Əyləncə parkına girirsən. Kassada bilet alırsan (**login**), qoluna **bilərzik** taxırlar (**session/cookie**).
-Hər attraksionda bilet soruşmurlar — bilərziyinə baxırlar. Bilərzik yoxdursa — "Kassaya get!" (**redirect to login**).
+- **Authentication**: istifadəçinin kim olduğunu müəyyən etmək (login).
+- **Authorization**: həmin istifadəçiyə nəyə icazə olduğunu yoxlamaq.
 
-- **Authentication (kimlik)** — "Sən kimsən?" (login)
-- **Authorization (icazə)** — "Sənə bu icazəlidir?" (məs. yalnız öz yazını silə bilərsən)
+## 1. Parol hash-i
 
-## 🧂 Parolu HEÇ VAXT açıq saxlama!
-
-Baza oğurlansa, parollar açıq görünməməlidir. Parolu **hash** edirik:
-hash = **qiymə maşını**. Ətdən qiymə olur, qiymədən ət geri olmur. 🥩➡️🍖
-
+Parol bazada heç vaxt açıq saxlanmır. Geri çevrilə bilməyən **hash** saxlanılır:
 ```python
 from werkzeug.security import generate_password_hash, check_password_hash
-# (werkzeug Flask ilə birlikdə gəlir)
 
-h = generate_password_hash("gizli123")
-print(h)   # scrypt:32768:8:1$....  — oxunmaz
-check_password_hash(h, "gizli123")   # True
-check_password_hash(h, "sehv")       # False
+h = generate_password_hash("parol123")   # bazaya bu yazılır
+check_password_hash(h, "parol123")       # True
 ```
 
-## 🍪 Session — Flask-ın bilərziyi
+## 2. Session
 
+Login olandan sonra Flask istifadəçinin id-sini imzalanmış **cookie**-də saxlayır. `SECRET_KEY` bu imzanın açarıdır: kim onu bilirsə, istənilən istifadəçinin adından cookie düzəldə bilər. Ona görə uzun və təsadüfi olmalı və `.env`-də saxlanmalıdır:
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
 ```python
 from flask import session
-
-app.secret_key = os.environ.get("SECRET_KEY", "dev")   # bilərziyi saxtalaşdırmamaq üçün möhür
+app.secret_key = os.environ["SECRET_KEY"]
+session["user_id"] = 5        # yaz
+session.get("user_id")        # oxu
+session.clear()               # çıxış
 ```
-`SECRET_KEY` yaratmaq: `python -c "import secrets; print(secrets.token_hex(32))"`
 
-## 👤 Tam nümunə
+## 3. Modellər
 
 ```python
-from functools import wraps
-from flask import session, flash, redirect, url_for, request, render_template, g
-
 class Istifadeci(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     parol_hash = db.Column(db.String(256), nullable=False)
+    qeydler = db.relationship("Qeyd", backref="muellif")
 
+class Qeyd(db.Model):
+    # ... əvvəlki sütunlar
+    muellif_id = db.Column(db.Integer, db.ForeignKey("istifadeci.id"), nullable=False)
+```
+Strukturu dəyişdin, ona görə `sayt.db` faylını sil.
+
+## 4. Qeydiyyat, login, çıxış
+
+```python
 @app.route("/qeydiyyat", methods=["GET", "POST"])
 def qeydiyyat():
     if request.method == "POST":
@@ -53,10 +57,8 @@ def qeydiyyat():
         elif Istifadeci.query.filter_by(email=email).first():
             flash("Bu email artıq qeydiyyatdadır", "xeta")
         else:
-            u = Istifadeci(email=email, parol_hash=generate_password_hash(parol))
-            db.session.add(u)
+            db.session.add(Istifadeci(email=email, parol_hash=generate_password_hash(parol)))
             db.session.commit()
-            flash("Qeydiyyat uğurludur, indi daxil ol", "ugur")
             return redirect(url_for("login"))
     return render_template("qeydiyyat.html")
 
@@ -66,17 +68,23 @@ def login():
         u = Istifadeci.query.filter_by(email=request.form.get("email", "").strip().lower()).first()
         if u and check_password_hash(u.parol_hash, request.form.get("parol", "")):
             session.clear()
-            session["user_id"] = u.id                  # 🎟️ bilərziyi taxdıq
+            session["user_id"] = u.id
             return redirect(url_for("index"))
-        flash("Email və ya parol səhvdir", "xeta")      # hansının səhv olduğunu demirik!
+        flash("Email və ya parol səhvdir", "xeta")   # hansının səhv olduğunu demə
     return render_template("login.html")
 
-@app.route("/cixis", methods=["POST"])
+@app.post("/cixis")
 def cixis():
-    session.clear()                                     # bilərziyi çıxardıq
+    session.clear()
     return redirect(url_for("index"))
+```
 
-# 🛂 Mühafizəçi dekorator — yalnız login olanlar keçsin
+## 5. Səhifəni qorumaq
+
+```python
+from functools import wraps
+from flask import abort
+
 def login_lazimdir(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -85,44 +93,49 @@ def login_lazimdir(f):
         return f(*args, **kwargs)
     return wrapper
 
-@app.route("/panel")
+@app.route("/qeyd/<int:id>/sil", methods=["POST"])
 @login_lazimdir
-def panel():
-    return "Bura yalnız daxil olanlar üçündür 🔒"
+def sil(id):
+    q = db.get_or_404(Qeyd, id)
+    if q.muellif_id != session["user_id"]:
+        abort(403)                      # authorization
+    db.session.delete(q)
+    db.session.commit()
+    return redirect(url_for("index"))
 ```
 
-Avtorizasiya nümunəsi (yalnız müəllif silə bilər):
+Cari istifadəçini bütün şablonlarda əlçatan etmək (menyuda "Daxil ol" və ya "Çıxış" göstərmək üçün):
 ```python
-if yazi.muellif_id != session["user_id"]:
-    abort(403)
+@app.context_processor
+def cari_istifadeci():
+    uid = session.get("user_id")
+    return {"istifadeci": db.session.get(Istifadeci, uid) if uid else None}
 ```
 
-> Böyük layihələrdə **Flask-Login** paketi bu işləri daha rahat edir. Amma əvvəl prinsipi başa düşmək üçün özün yaz.
+## 6. Təhlükəsizlik minimumu
 
-## 🛡️ Təhlükəsizlik yoxlama siyahısı
+| Risk | Qoruma |
+|---|---|
+| SQL injection | ORM / parametrli sorğu |
+| XSS (səhifəyə skript yeritmək) | Jinja `{{ }}` escape edir; `\|safe` və `innerHTML` istifadəçi məlumatına işlətmə |
+| Parol sızması | Hash |
+| Açar sızması | `.env`, `.gitignore` |
+| Başqasının resursunu dəyişmək | Hər dəyişiklikdə sahibliyi yoxla (403) |
+| Debug səhifəsinin açıq qalması | Hosting-də `debug` söndürülü |
+| Trafikin oxunması | HTTPS (14-cü gün) |
+| CSRF | Silmə və dəyişmə yalnız POST ilə; real layihədə `Flask-WTF` |
 
-| Təhlükə | Nədir | Qoruma |
-|---|---|---|
-| **SQL Injection** | Formadan SQL kodu yeritmək | ORM və ya `?` parametrləri (9-cu gün) |
-| **XSS** | Formadan `<script>` yeritmək | Jinja `{{ }}` avtomatik escape; `\|safe` istifadə etmə |
-| **CSRF** | Başqa sayt sənin adından forma göndərir | `Flask-WTF` CSRF tokenləri; silmə/dəyişmə yalnız POST ilə |
-| **Parol oğurluğu** | Baza sızır | Hash (`generate_password_hash`) |
-| **Açar sızması** | API key GitHub-da | `.env` + `.gitignore` |
-| **Brute force** | Milyon parol yoxlamaq | `Flask-Limiter` ilə sorğu limiti |
-| **Debug rejimi** | Xəta səhifəsi kodu göstərir | Hosting-də `debug=False`! |
-| **HTTP** | Məlumat açıq gedir | Həmişə HTTPS (14-cü gün) |
-
-## 🎯 Tapşırıq
+## Tapşırıq
 
 1. Qeydiyyat, login, çıxış səhifələri.
-2. Menyu: login olmayana "Daxil ol / Qeydiyyat", olana "Çıxış" göstərsin.
-3. Yazı yaratmaq yalnız login olanlara icazəli olsun.
-4. Hər yazı müəllifinə bağlansın (`ForeignKey`), yalnız müəllif silə bilsin.
-5. `sayt.db`-yə bax: parollar oxunmaz olmalıdır ✅.
+2. Menyu login vəziyyətinə görə dəyişsin.
+3. Qeyd yaratmaq, redaktə və silmə yalnız login olmuş istifadəçiyə açıq olsun. Redaktə və silmə yalnız müəllifə.
+4. API-də də eyni qaydalar: login yoxdursa `401`, müəllif deyilsə `403` JSON cavabı.
+5. İki ayrı hesabla (ikincisi üçün brauzerin gizli pəncərəsini aç) birinin qeydini o birindən silməyə çalış. `403` almalısan.
 
-## ✅ Gün sonu yoxlama
+## Yoxlama
 
-1. Authentication və authorization fərqi?
-2. Parolu niyə hash edirik?
-3. Session nədir və `SECRET_KEY` nə üçündür?
-4. Login səhv olanda niyə "email səhvdir" demirik?
+1. Authentication və authorization arasındakı fərq nədir?
+2. `SECRET_KEY` sızarsa nə olar?
+3. Login uğursuz olanda niyə "email səhvdir" yox, "email və ya parol səhvdir" deyirik?
+4. Qeydi silməzdən əvvəl hansı iki yoxlama aparılır?

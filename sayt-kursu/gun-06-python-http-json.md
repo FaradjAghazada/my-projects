@@ -1,128 +1,95 @@
-# Gün 6 — Python davamı, HTTP və JSON 📨
+# Gün 6 — venv, xətalar, HTTP, JSON
 
-## 1️⃣ Modullar və pip — hazır alətlər qutusu
+**Məqsəd:** paket idarəetməsi və HTTP/JSON-u başa düşmək. Sabahdan backend yazacaqsan və hər şey bunun üzərində qurulub.
 
-Hər şeyi sıfırdan yazmırıq. Başqalarının yazdığı **paketləri** istifadə edirik.
+## 1. Virtual mühit və paketlər
 
-```python
-import random
-import datetime
-
-print(random.randint(1, 6))           # zər at 🎲
-print(datetime.date.today())
-```
-
-Kənar paketlər `pip` ilə yüklənir. Amma əvvəlcə **virtual mühit (venv)** yarat.
-
-### 🧺 venv nədir?
-Hər layihənin **öz oyuncaq səbəti**. Bir layihənin paketləri digərinə qarışmır.
+Hər layihənin öz paket mühiti olur, layihələr bir-birinə qarışmır.
 
 ```bash
-python -m venv venv                 # səbət yarat
-# aktivləşdir:
-venv\Scripts\activate               # Windows
-source venv/bin/activate            # Mac/Linux
-# Terminalda (venv) yazısı görünəcək ✅
+cd qeydler
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+# terminalda (venv) görünməlidir
 
-pip install requests                # paket yüklə
-pip freeze > requirements.txt       # səbətdə nə var — siyahını yaz
-pip install -r requirements.txt     # başqa kompüterdə hamısını birdən yüklə
+pip install requests
+pip freeze > requirements.txt     # paketlərin siyahısı (hosting-də lazım olacaq)
+pip install -r requirements.txt   # siyahıdan hamısını yüklə
 ```
-`requirements.txt` hosting-ə yükləyəndə **mütləq** lazım olacaq (13-cü gün).
+Hər dəfə terminalı açanda venv-i aktivləşdir. VS Code-da `Python: Select Interpreter` → `venv` seç.
 
-## 2️⃣ Xətaları tutmaq (try/except)
+## 2. Xətaları tutmaq
 
 ```python
 try:
-    reqem = int(input("Rəqəm yaz: "))
-    print(10 / reqem)
+    n = int(deyer)
 except ValueError:
-    print("Bu rəqəm deyil!")
-except ZeroDivisionError:
-    print("Sıfıra bölmək olmaz!")
+    n = 0
 ```
+Qayda: yalnız gözlədiyin xətanı tut (`ValueError`, `requests.RequestException`). Boş `except:` yazma, çünki səhvləri gizlədir.
 
-## 3️⃣ Fayllar
+## 3. HTTP
 
-```python
-with open("qeyd.txt", "w", encoding="utf-8") as f:
-    f.write("Salam!\n")
+Sorğu bunlardan ibarətdir: **metod + URL + headers + body**. Cavab isə: **status kodu + headers + body**.
 
-with open("qeyd.txt", encoding="utf-8") as f:
-    print(f.read())
-```
-
-## 4️⃣ HTTP — ofisiantın dili 🧑‍🍳
-
-Hər sorğunun **metodu** var — nə istədiyini deyir:
-
-| Metod | Mənası | Restoranda |
+| Metod | Mənası | Nümunə |
 |---|---|---|
-| `GET` | Ver, baxım | "Menyunu göstər" |
-| `POST` | Yeni şey yarat | "Yeni sifariş verirəm" |
-| `PUT/PATCH` | Dəyiş | "Sifarişimi dəyiş" |
-| `DELETE` | Sil | "Sifarişi ləğv et" |
+| GET | Oxu | Qeydlər siyahısını al |
+| POST | Yarat | Yeni qeyd göndər |
+| PUT/PATCH | Dəyiş | Qeydi redaktə et |
+| DELETE | Sil | Qeydi sil |
 
-Sorğunun hissələri:
-- **URL** — hara?
-- **Method** — nə etməli?
-- **Headers** — əlavə qeydlər (məs. "mən JSON göndərirəm", "bu mənim açarımdır")
-- **Body** — göndərilən məlumat (POST-da)
+- GET məlumatı URL-də göndərir (`?q=...`). Brauzerdə linkə keçmək GET-dir.
+- POST məlumatı body-də göndərir. Forma göndərmək POST-dur.
+- **Headers**: əlavə məlumat. Məsələn `Content-Type: application/json` (body-nin formatı), `Authorization: Bearer <açar>`.
 
-Cavabın hissələri: **status kodu** (200, 404…), **headers**, **body**.
+## 4. JSON
 
-## 5️⃣ JSON — hamının başa düşdüyü dil 🌍
-
-Python Python dilində, JavaScript JS dilində danışır. Bəs bir-birini necə başa düşürlər?
-**JSON** — onların ortaq dilidir. Görünüşü Python dict-ə çox bənzəyir:
+Proqramlar arasında məlumat ötürmək üçün mətn formatı. Python `dict`/`list` ilə demək olar eynidir:
 
 ```json
-{
-  "ad": "Aysel",
-  "yas": 10,
-  "telebedir": true,
-  "hobbiler": ["rəsm", "üzgüçülük"]
-}
+{"id": 1, "basliq": "Alış-veriş", "aktiv": true, "teqler": ["ev"]}
 ```
+Python-dan fərqi: `true/false/null` (Python-da `True/False/None`), həmişə qoşa dırnaq.
 
 ```python
 import json
-
-data = {"ad": "Aysel", "yas": 10}
-metn = json.dumps(data, ensure_ascii=False)   # dict → JSON mətni
-geri = json.loads(metn)                       # JSON mətni → dict
+metn = json.dumps({"a": 1}, ensure_ascii=False)   # dict → JSON mətni
+data = json.loads(metn)                          # JSON mətni → dict
 ```
 
-## 6️⃣ İlk API sorğun! 🎉
-
-API = **başqa proqramın menyusu**. Ondan sorğu göndərirsən, JSON qaytarır.
+## 5. `requests` ilə API-yə sorğu
 
 ```python
 import requests
 
-# Bakının havası (pulsuz API, açar lazım deyil)
-url = "https://api.open-meteo.com/v1/forecast"
-params = {"latitude": 40.41, "longitude": 49.87, "current_weather": "true"}
+r = requests.get(
+    "https://api.open-meteo.com/v1/forecast",
+    params={"latitude": 40.41, "longitude": 49.87, "current_weather": "true"},
+    timeout=5,                 # həmişə timeout qoy
+)
+print(r.status_code)           # 200
+data = r.json()                # JSON → dict
+print(data["current_weather"]["temperature"])
 
-cavab = requests.get(url, params=params, timeout=10)
-print(cavab.status_code)                 # 200
-data = cavab.json()                      # JSON → dict
-print(data["current_weather"]["temperature"], "°C")
+r = requests.post(
+    "https://jsonplaceholder.typicode.com/posts",
+    json={"title": "Test"},    # dict → JSON body + Content-Type header
+    timeout=5,
+)
+print(r.status_code, r.json())  # 201
 ```
 
-Bu URL-i brauzerə də yapışdır, JSON-u öz gözünlə gör:
-`https://api.open-meteo.com/v1/forecast?latitude=40.41&longitude=49.87&current_weather=true`
+## Tapşırıq
 
-## 🎯 Tapşırıq
+1. `qeydler/` qovluğunda venv yarat, `requests` yüklə, `requirements.txt` yarat.
+2. `hava.py`: Bakının temperaturunu qaytaran `hava_al()` funksiyası. İnternet yoxdursa və ya xəta varsa `None` qaytarsın (`try/except requests.RequestException`). 11-ci gündə sayta qoşulacaq.
+3. `https://jsonplaceholder.typicode.com/posts` ünvanına GET sorğusu göndər və ilk 5 yazının `title`-ını çap et.
+4. Eyni URL-i brauzerdə aç, JSON-u gör. Sonra `F12 → Network`-də sorğunun metoduna və status koduna bax.
 
-1. venv yarat, `requests` yüklə, `requirements.txt` yarat.
-2. Hava proqramı: istifadəçidən şəhər seçimi soruş (Bakı, Gəncə, Sumqayıt — koordinatları özün tap) və temperaturu göstər.
-3. `https://jsonplaceholder.typicode.com/posts` — saxta yazılar API-sidir. İlk 5 yazının başlığını (`title`) çap et.
-4. Bonus: `requests.post("https://jsonplaceholder.typicode.com/posts", json={"title": "Salam"})` göndər, cavaba bax.
+## Yoxlama
 
-## ✅ Gün sonu yoxlama
-
-1. venv nə üçündür?
-2. GET ilə POST fərqi?
-3. JSON nədir və niyə lazımdır?
-4. `cavab.json()` nə qaytarır?
+1. venv nəyə lazımdır və `requirements.txt` nə üçündür?
+2. GET və POST: məlumat hər birində harada gedir?
+3. `requests.post(url, json=...)` hansı header-i avtomatik qoyur?
+4. Kənar API-yə sorğuda niyə `timeout` lazımdır?

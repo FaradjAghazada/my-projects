@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ q.basliq }}{% endblock %}
+{% block content %}
+<article class="kart">
+    <h1>{{ q.basliq }}</h1>
+    <small>{{ q.muellif.email }} · {{ q.yaradilib.strftime('%d.%m.%Y %H:%M') }}</small>
+    <p class="metn">{{ q.metn }}</p>
+    {% if istifadeci and istifadeci.id == q.muellif_id %}
+        <div class="duymeler">
+            <a href="{{ url_for('redakte', id=q.id) }}">Redaktə</a>
+            <form action="{{ url_for('sil', id=q.id) }}" method="POST">
+                <button class="link-qirmizi">Sil</button>
+            </form>
+        </div>
+    {% endif %}
+</article>
+{% endblock %}

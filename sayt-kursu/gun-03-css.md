@@ -1,132 +1,98 @@
-# Gün 3 — CSS: saytın paltarı 👗
+# Gün 3 — CSS
 
-## 🎨 Nağıl
+**Məqsəd:** saytı səliqəli və telefonda işlək etmək. Gözəl dizayn məqsəd deyil.
 
-HTML — kukladır, amma çılpaqdır. **CSS** ona paltar geyindirir: rəng, ölçü, yer, şrift.
+## 1. Qoşmaq və sintaksis
 
-CSS-in quruluşu: **kimə? → nə etməli?**
-
-```css
-h1 {                 /* kimə: bütün h1-lərə (selektor) */
-    color: blue;     /* nə: rəngi mavi olsun (xüsusiyyət: dəyər;) */
-    font-size: 40px;
-}
-```
-
-## 🔗 CSS-i HTML-ə qoşmaq
-
-`style.css` faylı yarat və HTML-in `<head>` hissəsinə əlavə et:
+`style.css` yarat, hər HTML faylın `<head>` hissəsinə əlavə et:
 ```html
 <link rel="stylesheet" href="style.css">
 ```
 
-## 🎯 Selektorlar — kimi geyindiririk?
+```css
+selektor {
+    xususiyyet: deyer;
+}
+```
+
+Selektorlar:
+```css
+p { }          /* bütün <p> */
+.kart { }      /* class="kart" */
+#esas { }      /* id="esas" */
+nav a { }      /* nav içindəki a */
+a:hover { }    /* siçan üstündə olanda */
+```
+
+## 2. Qutu modeli
+
+Hər element qutudur: `content` → `padding` (daxili boşluq) → `border` → `margin` (xarici boşluq).
 
 ```css
-p { }              /* bütün <p>-lər */
-.kart { }          /* class="kart" olan hər kəs (nöqtə ilə) */
-#esas { }          /* id="esas" olan tək element (# ilə) */
-nav a { }          /* nav-ın İÇİNDƏKİ a-lar */
-a:hover { }        /* siçan üstünə gələndə */
-```
+* { box-sizing: border-box; }   /* həmişə yaz: ölçüyə padding və border daxil olur */
 
-## 📦 Qutu modeli — ən vacib anlayış
-
-CSS-də **hər şey qutudur**. Hər qutunun 4 qatı var — hədiyyə qutusu kimi:
-
-```
-┌─────────── margin (qutu ilə qonşular arasındakı boşluq) ──────────┐
-│  ┌──────── border (qutunun kağızı, çərçivəsi) ──────────────────┐  │
-│  │  ┌───── padding (hədiyyə ilə kağız arasındakı yumşaq pambıq) ┐│  │
-│  │  │            content (hədiyyənin özü — mətn, şəkil)          ││  │
-│  │  └───────────────────────────────────────────────────────────┘│  │
-│  └───────────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-```css
 .kart {
-    padding: 20px;
-    border: 2px solid #ddd;
-    margin: 10px;
-    border-radius: 12px;     /* künclər yumru */
-}
-
-* { box-sizing: border-box; }   /* bunu həmişə yaz — ölçüləri hesablamaq asanlaşır */
-```
-
-## 🖌️ Tez-tez lazım olanlar
-
-```css
-body {
-    font-family: system-ui, Arial, sans-serif;
-    background-color: #f5f5f5;
-    color: #222;
-    margin: 0;
-    line-height: 1.6;
-}
-.duyme {
-    background: #4f46e5;
-    color: white;
-    padding: 10px 20px;
-    border: none;
+    padding: 16px;
+    border: 1px solid #ddd;
     border-radius: 8px;
-    cursor: pointer;          /* siçan əl şəklinə düşür */
+    margin-bottom: 16px;
 }
-.duyme:hover { background: #4338ca; }
-img { max-width: 100%; }      /* şəkil heç vaxt ekrandan çıxmasın */
 ```
 
-Rənglər: `red`, `#ff0000`, `rgb(255,0,0)` — hamısı eynidir.
-Ölçülər: `px` (piksel), `%` (faiz), `rem` (şriftə görə).
+## 3. Düzülüş: Flexbox
 
-## ↔️ Flexbox — şeyləri yan-yana düzmək
-
-Flexbox — **qatar** kimidir: vaqonları bir sırada düzür.
+Elementləri bir sırada düzmək üçün. Real saytların əksər düzülüşü bununla edilir.
 
 ```css
 nav {
-    display: flex;                  /* uşaqlarını sıraya düz */
-    justify-content: space-between; /* üfüqi: aralarını bərabər payla */
-    align-items: center;            /* şaquli: ortaya */
-    gap: 16px;                      /* vaqonlar arası məsafə */
+    display: flex;
+    justify-content: space-between;  /* üfüqi düzülüş */
+    align-items: center;             /* şaquli düzülüş */
+    gap: 16px;                       /* aralarındakı məsafə */
 }
 ```
-`justify-content` dəyərləri: `flex-start`, `center`, `flex-end`, `space-between`.
+- `justify-content`: `flex-start | center | flex-end | space-between`
+- `flex-direction: column`: sıranı sütuna çevirir.
 
-## ⊞ Grid — cədvəl kimi düzmək
-
-```css
-.kartlar {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);  /* 3 bərabər sütun */
-    gap: 20px;
-}
-```
-
-## 📱 Responsiv — telefonda da gözəl olsun
+## 4. Responsiv dizayn
 
 ```css
-@media (max-width: 700px) {        /* ekran 700px-dən dar olanda */
-    .kartlar { grid-template-columns: 1fr; }   /* 1 sütun */
+@media (max-width: 700px) {
     nav { flex-direction: column; }
 }
 ```
 Yoxla: `F12` → telefon ikonu (Toggle device toolbar).
 
-## 🎯 Tapşırıq
+## 5. Hazır baza
 
-Dünənki 3 səhifəli sayta `style.css` qoş:
-1. Yuxarıda flex ilə menyu (logo solda, linklər sağda).
-2. Hobbilər səhifəsində hər hobbi bir `.kart` olsun, grid ilə 3 sütun.
-3. Telefonda 1 sütuna düşsün.
-4. Düymələrə `:hover` effekti ver.
+Bunu götür və ehtiyac olduqca dəyiş:
+```css
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    line-height: 1.6;
+    color: #222;
+    background: #f5f5f7;
+}
+main { max-width: 900px; margin: 0 auto; padding: 16px; }
+img { max-width: 100%; }
+input, textarea, button { font: inherit; padding: 8px; }
+button { cursor: pointer; }
+```
 
-💡 Hazır dizayn istəyəndə gələcəkdə **Bootstrap** və ya **Tailwind** kimi kitabxanalara bax — amma əvvəl təmiz CSS-i başa düş.
+## Tapşırıq
 
-## ✅ Gün sonu yoxlama
+1. 5-ci bölmədəki bazanı `style.css`-ə əlavə et və 3 səhifəyə qoş.
+2. Menyu flex ilə: sayt adı solda, linklər sağda.
+3. Qeydlər kart görünüşündə olsun (`.kart`).
+4. Formalar şaquli olsun: `form { display: flex; flex-direction: column; max-width: 480px; gap: 8px; }`.
+5. 700px-dən dar ekranda menyu sütuna düşsün.
 
-1. `.ad` və `#ad` selektorlarının fərqi?
-2. `padding` ilə `margin` fərqi nədir?
-3. Üç elementi yan-yana necə düzürsən?
-4. Telefon üçün xüsusi stil necə yazılır?
+Bu tapşırığa 2 saatdan çox vaxt sərf etmə.
+
+## Yoxlama
+
+1. `padding` və `margin` arasındakı fərq nədir?
+2. 3 elementi yan-yana necə düzürsən və aralarını necə bərabər paylayırsan?
+3. Yalnız telefon üçün stili necə yazırsan?

@@ -1,115 +1,85 @@
-# Gün 4 — JavaScript: saytın əzələləri 💪
+# Gün 4 — JavaScript
 
-## 🤖 Nağıl
+**Məqsəd:** brauzerdə işləyən JS əsasları: elementi tapmaq, hadisəyə reaksiya vermək, səhifəni dəyişmək. 10-cu gündə bunu serverlə əlaqə üçün işlədəcəksən.
 
-- HTML — robotun **skeleti**
-- CSS — robotun **paltarı**
-- **JavaScript** — robotun **əzələləri və beyni**: düyməyə basanda nəsə etsin, məlumat gətirsin.
+Bu kursda backend Python-dadır. JS-dən yalnız frontend üçün lazım olan minimum öyrənilir.
 
-JavaScript **brauzerdə** (istifadəçinin kompüterində) işləyir. Python isə **serverdə** işləyəcək.
+## 1. Qoşmaq
 
-## 🔗 Qoşmaq
-
-`</body>`-dən **dərhal əvvəl**:
+`</body>`-dən əvvəl:
 ```html
 <script src="app.js"></script>
 ```
-Yoxlamaq üçün: `F12` → **Console**. `console.log(...)` yazdığın hər şey orada görünür.
+Nəticəni və xətaları görmək üçün: `F12` → **Console**. Yoxlamaq üçün `console.log(x)` yaz.
 
-## 📦 Əsaslar
+## 2. Sintaksis (minimum)
 
 ```js
-// Dəyişən — adı olan qutu
-let yas = 10;              // dəyişə bilər
-const ad = "Aysel";        // dəyişməz (const = sabit)
+const ad = "Aysel";        // dəyişməyən dəyər (default olaraq bunu işlət)
+let say = 0;               // dəyişən dəyər
 
-// Növlər
-let reqem = 5;
-let metn = "salam";
-let dogru = true;
-let siyahi = ["alma", "armud"];          // massiv (array)
-let adam = { ad: "Aysel", yas: 10 };     // obyekt — Python-da dict olacaq
+const siyahi = ["a", "b"];               // array
+const qeyd = { basliq: "X", metn: "Y" }; // obyekt
+qeyd.basliq;                              // "X"
+siyahi.length;                            // 2
 
-console.log(adam.ad);         // Aysel
-console.log(siyahi[0]);       // alma  (sayma 0-dan başlayır!)
-console.log(`Salam, ${ad}!`); // şablon mətni: `` işarəsi ilə
+if (say > 0) { ... } else { ... }
 
-// Şərt
-if (yas >= 18) {
-    console.log("Böyüksən");
-} else {
-    console.log("Uşaqsan");
+for (const x of siyahi) {
+    console.log(x);
 }
 
-// Döngü
-for (const meyve of siyahi) {
-    console.log(meyve);
-}
-
-// Funksiya — təkrar istifadə olunan resept
 function topla(a, b) {
     return a + b;
 }
-const vur = (a, b) => a * b;   // qısa yazılış (arrow function)
+
+`Salam, ${ad}`             // şablon mətni (backtick ilə)
 ```
 
-## 🖱️ DOM — səhifəni idarə etmək
-
-**DOM** = brauzerin HTML-dən qurduğu **ağac**. JS bu ağacın budaqlarını tapıb dəyişə bilir.
-
-```html
-<h1 id="basliq">Salam</h1>
-<button id="duyme">Bas</button>
-<p id="sayac">0</p>
-```
+## 3. DOM: tap → qulaq as → dəyiş
 
 ```js
-// 1. Tap
-const basliq = document.querySelector("#basliq");
-const duyme  = document.querySelector("#duyme");
-const sayac  = document.querySelector("#sayac");
+const duyme = document.querySelector("#duyme");   // CSS selektoru ilə tap
+const metn  = document.querySelector("#metn");
 
-// 2. Dəyiş
-basliq.textContent = "Salam, JavaScript!";
-basliq.style.color = "purple";
-
-// 3. Hadisəyə (event) qulaq as
-let say = 0;
-duyme.addEventListener("click", () => {
-    say = say + 1;
-    sayac.textContent = say;
+duyme.addEventListener("click", () => {           // hadisəyə qulaq as
+    metn.textContent = "Düyməyə basıldı";         // dəyiş
+    metn.classList.toggle("gizli");               // class əlavə et / sil
 });
 ```
 
-**Tap → Qulaq as → Dəyiş.** Frontend JS-in 80%-i budur.
-
-## ➕ Element yaratmaq
-
+Element yaratmaq:
 ```js
-const siyahiEl = document.querySelector("#siyahi");   // <ul id="siyahi">
-const yeni = document.createElement("li");
-yeni.textContent = "Yeni element";
-siyahiEl.appendChild(yeni);
+const li = document.createElement("li");
+li.textContent = "Yeni";
+document.querySelector("#siyahi").appendChild(li);
 ```
 
-## 🎯 Tapşırıq: "Görüləcək işlər" (To-Do) siyahısı
-
-```html
-<input id="is" placeholder="Nə etməliyəm?">
-<button id="elave">Əlavə et</button>
-<ul id="siyahi"></ul>
+Formada input-un dəyərini oxumaq:
+```js
+const deyer = document.querySelector("#basliq").value;
 ```
-1. Düyməyə basanda input-dakı mətn siyahıya `<li>` kimi əlavə olunsun.
-2. Boş mətn əlavə olunmasın (`if (metn === "") return;`).
-3. Əlavə edəndən sonra input təmizlənsin (`input.value = ""`).
-4. Bonus: `<li>`-yə kliklədikdə üstündən xətt çəkilsin (`li.style.textDecoration = "line-through"`).
 
-> Bu siyahı səhifəni yeniləyəndə **itir**. Niyə? Çünki yadda saxlayan yoxdur!
-> 9-cu gündə **verilənlər bazası** ilə bu problemi həll edəcəyik. 😉
+Formanın göndərilməsini dayandırmaq (10-cu gündə lazım olacaq):
+```js
+form.addEventListener("submit", (e) => {
+    e.preventDefault();   // səhifə yenilənmir
+    // ...
+});
+```
 
-## ✅ Gün sonu yoxlama
+Qayda: istifadəçinin yazdığını səhifəyə yazmaq üçün həmişə `textContent` işlət, `innerHTML` yox. `innerHTML` zərərli kodun işə düşməsinə səbəb ola bilər (XSS, 12-ci gün).
 
-1. JavaScript harada işləyir: brauzerdə, yoxsa serverdə?
-2. `let` ilə `const` fərqi?
-3. Düyməyə klik hadisəsini necə tutursan?
-4. DOM nədir?
+## Tapşırıq
+
+`yeni.html` üçün `app.js`:
+1. `metn` textarea-sının altında simvol sayğacı olsun: `0 / 500`. Hər yazanda yenilənsin (`input` hadisəsi).
+2. Forma göndəriləndə başlıq boşdursa `e.preventDefault()` et və qırmızı xəta mətni göstər.
+3. `index.html`: hər kartda "Gizlət" düyməsi kartın mətnini gizlətsin və göstərsin.
+
+## Yoxlama
+
+1. `const` və `let` arasındakı fərq nədir?
+2. Düyməyə klik hadisəsini necə tutursan?
+3. `e.preventDefault()` nə edir?
+4. Niyə `innerHTML` yox, `textContent` işlədirik?

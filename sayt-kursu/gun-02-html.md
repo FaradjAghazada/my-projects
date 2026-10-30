@@ -1,119 +1,81 @@
-# Gün 2 — HTML: saytın skeleti 🦴
+# Gün 2 — HTML
 
-## 🏠 Nağıl
+**Məqsəd:** saytın səhifələrinin strukturunu yazmaq.
 
-Ev tikirsən. Əvvəlcə **divarlar, otaqlar, qapılar** lazımdır — rəng, mebel sonra.
-**HTML** = evin divarları. O deyir: *"burada başlıq var, burada şəkil, burada düymə"*.
+HTML məzmunu və onun rolunu təsvir edir: bu başlıqdır, bu linkdir, bu formadır. Görünüş CSS-in işidir.
 
-HTML **teqlərdən** (tag) ibarətdir. Teq — qutudur. Açırsan, içinə nəsə qoyursan, bağlayırsan:
+## 1. Səhifənin skeleti
 
-```html
-<p>Salam, mən paraqrafam!</p>
- ↑ açılış                 ↑ bağlanış (/ işarəsi ilə)
-```
-
-## 📄 İlk səhifən
-
-`sayt` qovluğunda `index.html` yarat və **əlinlə** yaz:
-
+`qeydler/index.html`:
 ```html
 <!DOCTYPE html>
 <html lang="az">
 <head>
-    <!-- head: brauzer üçün gizli məlumatlar (görünmür) -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mənim ilk saytım</title>
+    <title>Qeydlər</title>
 </head>
 <body>
-    <!-- body: görünən hər şey -->
-    <h1>Salam, dünya!</h1>
-    <p>Bu mənim <strong>ilk</strong> saytımdır.</p>
+    <h1>Qeydlər</h1>
+    <p>Mənim ilk saytım.</p>
 </body>
 </html>
 ```
+- `<head>` brauzer üçündür, görünmür. `charset="UTF-8"` olmasa `ə, ş, ğ` pozulur. `viewport` olmasa telefonda kiçik görünür.
+- `<body>` görünən hissədir.
 
-Faylı brauzerdə aç (iki dəfə kliklə) və ya VS Code-da sağ klik → **Open with Live Server**.
+Aç: VS Code-da fayla sağ klik → **Open with Live Server**.
 
-> `<meta charset="UTF-8">` olmasa `ə, ş, ğ` hərfləri qarışıq görünə bilər!
-
-## 🧱 Ən vacib teqlər
-
-```html
-<h1>Ən böyük başlıq</h1>  ... <h6>ən kiçik</h6>
-<p>Paraqraf — adi mətn</p>
-<a href="https://google.com">Link — başqa yerə qapı</a>
-<img src="pisik.jpg" alt="Pişik şəkli">       <!-- bağlanış teqi yoxdur -->
-<br>                                          <!-- yeni sətir -->
-
-<ul>                     <!-- nöqtəli siyahı -->
-    <li>Alma</li>
-    <li>Armud</li>
-</ul>
-<ol>                     <!-- nömrəli siyahı -->
-    <li>Birinci</li>
-</ol>
-
-<button>Bas məni</button>
-<div>Qutu — hər şeyi qruplaşdırmaq üçün</div>
-<span>Sətir içində kiçik qutu</span>
-```
-
-## 🏷️ Atributlar — teqin xüsusiyyətləri
+## 2. Lazım olan teqlər
 
 ```html
-<a href="haqqimda.html" target="_blank">Haqqımda</a>
-<img src="logo.png" alt="Logo" width="200">
-<div id="esas" class="kart">...</div>
-```
-- `id` — **unikal ad** (pasport kimi, yalnız bir dənə)
-- `class` — **qrup adı** (məktəb forması kimi, çoxları geyinə bilər)
+<h1>...</h1> <h2>...</h2>            <!-- başlıqlar -->
+<p>Paraqraf</p>
+<a href="/haqqinda.html">Link</a>
+<img src="sekil.jpg" alt="Şəklin təsviri">
+<ul><li>Siyahı elementi</li></ul>
+<button>Düymə</button>
+<div>Qrup (blok)</div>
+<span>Qrup (sətir içində)</span>
 
-## 🗂️ Semantik teqlər — otaqlara ad vermək
-
-`div` hər şeydir, amma bunlar daha aydındır (Google da sevir):
-
-```html
-<header>Saytın başı: logo, menyu</header>
-<nav>Menyu linkləri</nav>
-<main>Əsas məzmun</main>
-<section>Bölmə</section>
-<article>Yazı / məqalə</article>
-<footer>Saytın ayağı: © 2026</footer>
+<header> <nav> <main> <article> <footer>   <!-- səhifə hissələri -->
 ```
 
-## 📝 Formalar — sayt səndən soruşur
+Atributlar:
+- `id="..."`: unikal ad, səhifədə yalnız bir dəfə.
+- `class="..."`: qrup adı, çox elementdə ola bilər. CSS və JS ilə bu adlara müraciət olunur.
 
-Bu, backend günlərində çox lazım olacaq:
+## 3. Formalar (backend üçün ən vacib hissə)
 
 ```html
 <form action="/elaqe" method="POST">
-    <label for="ad">Adın:</label>
-    <input type="text" id="ad" name="ad" required>
+    <label for="ad">Ad</label>
+    <input id="ad" name="ad" type="text" required>
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email">
 
-    <label for="mesaj">Mesaj:</label>
+    <label for="mesaj">Mesaj</label>
     <textarea id="mesaj" name="mesaj"></textarea>
 
     <button type="submit">Göndər</button>
 </form>
 ```
-`name` atributu çox vacibdir — backend məlumatı **bu adla** tanıyacaq.
+- `action`: məlumat hansı ünvana göndərilir.
+- `method`: `GET` və ya `POST` (6-cı gün).
+- `name`: serverin məlumatı tanıdığı açar. `name` olmayan sahə göndərilmir.
 
-## 🎯 Tapşırıq
+## Tapşırıq: saytın səhifələri
 
-3 səhifəli sayt qur:
-1. `index.html` — Ana səhifə: başlıq, özün haqqında 2 paraqraf, şəkil.
-2. `hobbilerim.html` — sevdiyin 5 şeyin siyahısı.
-3. `elaqe.html` — əlaqə forması (ad, email, mesaj).
-4. Hər səhifənin yuxarısında `<nav>` olsun və 3 səhifəyə link versin.
+`qeydler/` qovluğunda 3 fayl:
+1. `index.html`: `<header>` içində `<nav>` (3 səhifəyə link), `<main>` içində 3 qeyd. Hər qeyd `<article class="kart">` içində başlıq və mətndir.
+2. `yeni.html`: yeni qeyd forması (`basliq` input, `metn` textarea, düymə).
+3. `elaqe.html`: əlaqə forması (`ad`, `mesaj`).
 
-## ✅ Gün sonu yoxlama
+Menyu hər 3 səhifədə eyni olsun. Hələ dizayn etmə.
 
-1. `<head>` və `<body>` arasındakı fərq nədir?
-2. `id` ilə `class` fərqi nədir?
-3. Linki yeni pəncərədə necə açırsan?
-4. Formada `name` atributu niyə lazımdır?
-5. `alt` atributu nə üçündür? (ipucu: kor insanlar və şəkil yüklənməyəndə)
+## Yoxlama
+
+1. `id` ilə `class` arasındakı fərq nədir?
+2. Formada `name` atributu niyə vacibdir?
+3. `<head>` içindəki iki `meta` teqi nə edir?

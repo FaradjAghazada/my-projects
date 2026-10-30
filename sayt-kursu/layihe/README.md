@@ -1,39 +1,33 @@
-# 📝 Yekun layihə: "Qeydlərim"
+# Qeydlər: yekun layihə
 
-Kursda öyrəndiyin hər şey bir saytda. **Əvvəlcə özün yaz**, ilişəndə bura bax.
+Kursun 14 günü ərzində qurulan saytın hazır nəticəsi. Yalnız ilişəndə bax.
 
-| Xüsusiyyət | Harada | Gün |
-|---|---|---|
-| HTML şablonlar, `base.html` mirası | `templates/` | 2, 7 |
-| Responsiv CSS (flex, grid, media query) | `static/style.css` | 3 |
-| JavaScript + `fetch` ilə API | `static/app.js` | 4, 10 |
-| Formalar, flash, PRG | `/yeni`, `/elaqe` | 8 |
-| SQLAlchemy, 2 əlaqəli cədvəl | `Istifadeci`, `Yazi` | 9 |
-| JSON API | `/api/yazilar` | 10 |
-| Hava + Telegram inteqrasiyası, `.env` | `hava_al()`, `telegram_gonder()` | 11 |
-| Qeydiyyat, login, hash, icazə (403) | `/qeydiyyat`, `/login`, `sil()` | 12 |
-| gunicorn, `DATABASE_URL` | `requirements.txt` | 13 |
-
-## Lokalda işə salmaq
+## İşə salmaq
 
 ```bash
-cd layihe
 python -m venv venv
 source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env              # Windows: copy .env.example .env
-python app.py
+cp .env.example .env              # SECRET_KEY-i doldur
+python app.py                     # http://127.0.0.1:5000
 ```
-Aç: http://127.0.0.1:5000
+Windows-da `psycopg2-binary` yüklənməsə, onu `requirements.txt`-dən müvəqqəti sil. Lokalda SQLite işlədilir.
 
-## Render-ə yükləmək
-- Build Command: `pip install -r requirements.txt`
-- Start Command: `gunicorn app:app`
-- Root Directory: `sayt-kursu/layihe` (əgər bu repo-nu olduğu kimi yükləyirsənsə)
-- Environment: `SECRET_KEY`, istəyə bağlı `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `DATABASE_URL`
+## Render
+- Root Directory: `sayt-kursu/layihe`
+- Build: `pip install -r requirements.txt`
+- Start: `gunicorn app:app`
+- Environment: `SECRET_KEY`, `DATABASE_URL`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
 
-## Özünü sına — təkmilləşdir
-1. Yazını **redaktə etmək** səhifəsi əlavə et (UPDATE).
-2. API-yə `DELETE /api/yazilar/<id>` əlavə et (yalnız müəllif).
-3. Ana səhifəyə axtarış: `/?q=...`
-4. Hər yazıya şərh (`Serh` modeli — üçüncü cədvəl).
+## Hansı gün harada
+
+| Gün | Kod |
+|---|---|
+| 2–3 | `templates/`, `static/style.css` |
+| 4 | `static/forma.js` (sayğac) |
+| 7–8 | `index`, `qeyd`, `yeni`, `elaqe` route-ları |
+| 9 | `Qeyd` modeli, `redakte`, `sil`, axtarış |
+| 10 | `/api/qeydler`, `static/app.js` |
+| 11 | `hava_al`, `telegram_gonder`, `.env` |
+| 12 | `Istifadeci`, `login`, `qeydiyyat`, `oz_qeydi` (403) |
+| 13 | `gunicorn`, `DATABASE_URL`, `psycopg2-binary` |

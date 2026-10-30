@@ -1,124 +1,97 @@
-# Gün 5 — Python əsasları 🐍
+# Gün 5 — Python əsasları
 
-## 👨‍🍳 Nağıl
+**Məqsəd:** backend kodu yazmaq üçün lazım olan Python: dəyişənlər, şərtlər, `list`, `dict`, döngülər, funksiyalar.
 
-Backend — **mətbəxdir**. Aşpazımız **Python**-dur. Bu gün aşpaza danışmağı öyrənirik.
-Python ingilis dilinə ən çox bənzəyən proqramlaşdırma dilidir — ona görə başlamaq asandır.
+Faylı işə salmaq: `python fayl.py` (Mac/Linux: `python3 fayl.py`).
 
-`dersler.py` faylı yarat, kodu yaz və terminalda işə sal:
-```bash
-python dersler.py      # Mac/Linux: python3 dersler.py
-```
-
-## 📦 Dəyişənlər və növlər
+## 1. Dəyişənlər və tiplər
 
 ```python
-ad = "Aysel"          # str   — mətn
-yas = 10              # int   — tam ədəd
-boy = 1.42            # float — kəsr ədəd
-telebedir = True      # bool  — True / False
+ad = "Aysel"       # str
+yas = 25           # int
+qiymet = 9.99      # float
+aktiv = True       # bool
+yox = None         # dəyər yoxdur
 
-print(ad, yas)
-print(f"Salam, {ad}! Sənin {yas} yaşın var.")   # f-string: ən rahat yol
-print(type(yas))      # <class 'int'>
+print(f"{ad}, {yas} yaş")   # f-string: mətnə dəyər qoymaq
+int("42"), str(42)          # tip çevirmək
 ```
 
-⚠️ Python-da **boşluqlar (girinti) vacibdir!** JS-dəki `{ }` əvəzinə 4 boşluq istifadə olunur.
+Python-da bloklar `{}` ilə yox, **girinti (4 boşluq)** ilə ayrılır. Səhv girinti xətadır.
 
-## 🔀 Şərtlər
+## 2. Şərtlər
 
 ```python
-bal = 85
-if bal >= 90:
-    print("Əla")
-elif bal >= 70:
-    print("Yaxşı")
+if yas >= 18 and aktiv:
+    print("icazə var")
+elif yas >= 14:
+    print("məhdud")
 else:
-    print("Çalışmaq lazımdır")
+    print("icazə yoxdur")
 
-# and, or, not
-if yas > 7 and yas < 18:
-    print("Məktəblisən")
+if not ad:          # boş mətn, 0, None, [] → False sayılır
+    print("ad boşdur")
 ```
 
-## 📋 Siyahı (list)
+## 3. list və dict
+
+Backend-də məlumatın 90%-i bu iki strukturdadır: **dict-lərdən ibarət list**.
 
 ```python
-meyveler = ["alma", "armud", "gilas"]
-print(meyveler[0])        # alma
-meyveler.append("nar")    # sona əlavə et
-meyveler.remove("armud")  # sil
-print(len(meyveler))      # neçə dənə? → 3
-print("alma" in meyveler) # var? → True
+qeydler = [
+    {"id": 1, "basliq": "Alış-veriş", "metn": "Çörək, süd"},
+    {"id": 2, "basliq": "İş", "metn": "Hesabat"},
+]
+
+qeydler.append({"id": 3, "basliq": "Yeni", "metn": "..."})
+len(qeydler)               # 3
+qeydler[0]["basliq"]       # "Alış-veriş"
+qeydler[0].get("tarix")    # açar yoxdursa None (xəta vermir)
+"id" in qeydler[0]         # True
 ```
 
-## 📖 Lüğət (dict) — backend-in ən sevimli qutusu
-
-Dict — **etiketli qutular** kimidir: hər qutunun adı (açar, key) və içi (dəyər, value) var.
+## 4. Döngülər
 
 ```python
-sagird = {
-    "ad": "Aysel",
-    "yas": 10,
-    "hobbiler": ["rəsm", "üzgüçülük"],
-}
-print(sagird["ad"])              # Aysel
-print(sagird.get("seher", "?"))  # açar yoxdursa xəta yox, "?" qaytarır
-sagird["seher"] = "Bakı"         # yeni açar əlavə et
-```
-Yadda saxla: JS-dəki obyekt `{ad: "Aysel"}` ↔ Python-dakı dict `{"ad": "Aysel"}`.
-Sabah görəcəksən ki, bunlar **JSON** vasitəsilə bir-birinə çevrilir.
+for q in qeydler:
+    print(q["basliq"])
 
-## 🔁 Döngülər
-
-```python
-for meyve in meyveler:
-    print(meyve)
-
-for i in range(5):        # 0,1,2,3,4
+for i in range(3):         # 0, 1, 2
     print(i)
 
-for acar, deyer in sagird.items():
-    print(acar, "→", deyer)
-
-say = 3
-while say > 0:
-    print(say)
-    say -= 1
-print("Start! 🚀")
+# List comprehension: siyahıdan yeni siyahı
+basliqlar = [q["basliq"] for q in qeydler]
+uzunlar   = [q for q in qeydler if len(q["metn"]) > 5]
 ```
 
-## 🧰 Funksiyalar — resept kartları
+## 5. Funksiyalar
 
 ```python
-def salamla(ad, dil="az"):        # dil-in standart dəyəri var
-    if dil == "en":
-        return f"Hello, {ad}!"
-    return f"Salam, {ad}!"
+def qeyd_tap(qeydler, id):
+    for q in qeydler:
+        if q["id"] == id:
+            return q
+    return None
 
-print(salamla("Murad"))
-print(salamla("Murad", dil="en"))
+def qeyd_yarat(basliq, metn=""):     # metn-in standart dəyəri var
+    return {"basliq": basliq.strip(), "metn": metn.strip()}
 ```
 
-Backend-də **hər səhifə bir funksiya olacaq**. Ona görə funksiyaları yaxşı başa düş!
+Flask-da hər səhifə bir funksiyadır. Bu bölməni yaxşı mənimsə.
 
-## 🎯 Tapşırıq: "Mini mağaza"
+## Tapşırıq: `qeydler.py`
 
-```python
-mehsullar = [
-    {"ad": "Qələm", "qiymet": 0.5, "say": 100},
-    {"ad": "Dəftər", "qiymet": 1.2, "say": 0},
-    {"ad": "Çanta", "qiymet": 25, "say": 3},
-]
-```
-1. Bütün məhsulları belə çap et: `Qələm — 0.5 AZN (100 ədəd)`.
-2. `stokda_olanlar(mehsullar)` funksiyası yaz — yalnız `say > 0` olanları qaytarsın.
-3. `umumi_deyer(mehsullar)` — anbardakı bütün malların ümumi qiymətini hesablasın (`qiymet * say`).
-4. Bonus: `input()` ilə istifadəçidən məhsul adı soruş və onun qiymətini göstər.
+Saytın məlumat məntiqini terminalda yaz (7-ci gündə Flask-a köçəcək):
 
-## ✅ Gün sonu yoxlama
+1. Yuxarıdakı kimi `qeydler` siyahısı.
+2. `qeyd_tap(qeydler, id)`: qeydi id-yə görə qaytarsın, yoxdursa `None`.
+3. `qeyd_elave_et(qeydler, basliq, metn)`: yeni id ilə (`max(id) + 1`) əlavə etsin. Başlıq boşdursa əlavə etməsin və `False` qaytarsın.
+4. `qeyd_sil(qeydler, id)`: qeydi silsin.
+5. `axtar(qeydler, soz)`: başlıqda və ya mətndə sözü olan qeydləri qaytarsın (`soz.lower() in ...lower()`).
+6. Faylın sonunda hər funksiyanı `print` ilə yoxla.
 
-1. list ilə dict fərqi nədir?
-2. Python-da `{ }` əvəzinə nə istifadə olunur?
-3. `return` nə edir?
-4. `sagird["telefon"]` və `sagird.get("telefon")` fərqi nədir (açar yoxdursa)?
+## Yoxlama
+
+1. `qeyd["tarix"]` və `qeyd.get("tarix")` arasındakı fərq nədir (açar yoxdursa)?
+2. `return` olmayan funksiya nə qaytarır?
+3. `[q["id"] for q in qeydler]` nə qaytarır?

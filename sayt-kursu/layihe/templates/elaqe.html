@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Əlaqə{% endblock %}
 {% block content %}
-<h1>Əlaqə</h1>
-<p>Mesajın birbaşa Telegram-a gələcək 📲</p>
 <form method="POST" class="forma">
-    <label for="ad">Adın</label>
+    <label for="ad">Ad</label>
     <input id="ad" name="ad" value="{{ ad or '' }}" required>
     <label for="mesaj">Mesaj</label>
     <textarea id="mesaj" name="mesaj" rows="5" required>{{ mesaj or '' }}</textarea>
-    <button class="duyme">Göndər</button>
+    <button>Göndər</button>
 </form>
 {% endblock %}

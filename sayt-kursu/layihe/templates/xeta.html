@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}{{ kod }}{% endblock %}
+{% block content %}
+<h1>{{ kod }}</h1>
+<p>{% if kod == 403 %}Bu əməliyyata icazən yoxdur.{% else %}Səhifə tapılmadı.{% endif %}</p>
+<p><a href="{{ url_for('index') }}">Ana səhifə</a></p>
+{% endblock %}

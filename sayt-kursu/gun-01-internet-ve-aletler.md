@@ -1,88 +1,68 @@
-# Gün 1 — İnternet necə işləyir + alətləri quraşdırmaq
+# Gün 1 — İnternet necə işləyir, alətlər
 
-## 🍕 Nağıl: pizza sifarişi
+**Məqsəd:** brauzerlə server arasında nə baş verdiyini başa düşmək və işləyən mühit qurmaq.
 
-Sən telefonda `google.com` yazırsan. Nə baş verir?
+## 1. Saytı açanda nə baş verir
 
-1. **Brauzer** (Chrome) — bu sənsən, ac müştəri.
-2. Sən "Google" deyirsən, amma kompüter adları başa düşmür, yalnız **rəqəmləri** başa düşür.
-   Hər kompüterin internetdə ünvanı var: **IP ünvanı**, məsələn `142.250.185.78`.
-3. Kompüter **DNS**-dən soruşur: *"google.com-un ünvanı nədir?"*
-   DNS — **telefon kitabçasıdır**: adı verirsən, nömrəni qaytarır.
-4. Brauzer həmin IP-yə **sorğu (request)** göndərir: *"Mənə ana səhifəni ver"*.
-5. O ünvandakı kompüter — **server** — **cavab (response)** qaytarır: HTML, şəkillər və s.
-6. Brauzer bunları gözəl səhifəyə çevirib göstərir.
+1. Brauzerə `site.az` yazırsan.
+2. Brauzer **DNS**-dən soruşur: "site.az-ın IP ünvanı nədir?" DNS cavab verir: `185.12.34.56`.
+3. Brauzer həmin IP-dəki **serverə** **HTTP sorğusu (request)** göndərir: `GET /`.
+4. Server **cavab (response)** qaytarır: status kodu və HTML.
+5. Brauzer HTML-i səhifə kimi göstərir, sonra CSS, JS və şəkilləri ayrı sorğularla yükləyir.
 
-```
-Sən (brauzer) ──"google.com?"──▶ DNS ──"142.250.185.78"──▶ Sən
-Sən ──── REQUEST: "GET /" ──────▶ Server
-Sən ◀─── RESPONSE: HTML ───────── Server
-```
+Bütün kurs bu sxem üzərindədir. Frontend brauzerdə işləyir, backend serverdə. DNS və hosting saytı bu ikisinin arasında əlçatan edir.
 
-Bu **request → response** oyunu internetin hər şeyidir. 14 gün boyunca biz bu oyunun hər iki tərəfini öyrənəcəyik.
+## 2. Terminlər
 
-## 🔤 Bugünkü sözlər
-
-| Söz | Uşaq dili ilə |
+| Termin | Mənası |
 |---|---|
-| **Server** | Heç vaxt yatmayan, sorğulara cavab verən kompüter |
-| **Client (müştəri)** | Sorğu göndərən — adətən brauzer |
-| **IP** | Kompüterin ev ünvanı (rəqəmlərlə) |
-| **Domen** | Ünvanın gözəl adı (`google.com`) |
-| **DNS** | Adı rəqəmə çevirən telefon kitabçası |
-| **HTTP / HTTPS** | Brauzerlə serverin danışdığı dil. **S** = Secure (məktub zərfdə, kimsə oxuya bilmir) |
-| **URL** | Tam ünvan: `https://site.az/haqqimizda?dil=az` |
+| Client | Sorğu göndərən (brauzer, mobil tətbiq) |
+| Server | Sorğuya cavab verən proqram/kompüter |
+| IP | Serverin şəbəkə ünvanı |
+| Domen | IP-nin insan üçün adı |
+| DNS | Domeni IP-yə çevirən sistem |
+| HTTP/HTTPS | Client və server arasındakı protokol. HTTPS şifrələnmişdir |
+| Port | Bir kompüterdə hansı proqrama müraciət edildiyi (`:5000`, `:443`) |
 
 URL-in hissələri:
 ```
-https://   menimsaytim.az   /yazilar   ?sehife=2
-protokol   domen            yol (path)  parametrlər (query)
+https://site.az/yazilar?sehife=2
+protokol  domen   yol    parametr
 ```
 
-## 🛠️ Alətləri quraşdır (praktika)
+Status kodları: `200` uğurlu, `301/302` yönləndirmə, `400` səhv sorğu, `401/403` icazə yoxdur, `404` tapılmadı, `500` server xətası.
 
-1. **VS Code** — kod yazmaq üçün dəftər: https://code.visualstudio.com
-   - Əlavələr (Extensions): `Python`, `Live Server`.
-2. **Python 3.12+**: https://www.python.org/downloads
-   - ⚠️ Windows-da quraşdıranda **"Add Python to PATH"** işarəsini qoy!
-3. **Git**: https://git-scm.com/downloads
-4. **GitHub hesabı**: https://github.com (pulsuzdur)
+## 3. Quraşdır
 
-## 💻 Terminal — kompüterlə yazışmaq
+1. **VS Code** (code.visualstudio.com). Əlavələr: `Python`, `Live Server`.
+2. **Python 3.12+** (python.org). Windows-da **"Add Python to PATH"** seç.
+3. **Git** (git-scm.com).
+4. **GitHub** hesabı.
 
-Terminal kompüterə **sözlə əmr vermək** yeridir. VS Code-da: `Terminal → New Terminal`.
+Yoxla (VS Code → Terminal → New Terminal):
+```bash
+python --version     # Mac/Linux: python3 --version
+git --version
+```
+
+## 4. Lazım olan terminal əmrləri
 
 ```bash
-python --version      # Windows-da (Mac/Linux-da: python3 --version)
-git --version
-mkdir sayt            # "sayt" adlı qovluq yarat
-cd sayt               # o qovluğun içinə gir
-ls                    # içində nə var? (Windows cmd-də: dir)
-cd ..                 # bir qovluq geri çıx
+pwd              # hansı qovluqdayam (Windows: cd)
+ls               # içində nə var (Windows cmd: dir)
+mkdir qeydler    # qovluq yarat
+cd qeydler       # qovluğa gir
+cd ..            # geri çıx
 ```
 
-## 🔍 Təcrübə: interneti öz gözünlə gör
+## Tapşırıq
 
-1. Chrome-da istənilən sayta gir → `F12` bas → **Network** bölməsi → səhifəni yenilə.
-   Gördüyün hər sətir bir **request**-dir! Birinə kliklə: `Status 200` = "hər şey yaxşıdır".
-2. Terminalda yaz:
-   ```bash
-   nslookup google.com
-   ```
-   Bu, DNS-dən ünvan soruşmaqdır. Gördüyün rəqəmlər — IP.
+1. `qeydler` qovluğunu yarat və VS Code-da aç (`File → Open Folder`). 14 gün bu qovluqda işləyəcəksən.
+2. Brauzerdə istənilən saytı aç → `F12` → **Network** → səhifəni yenilə. Sorğulara, metodlarına və status kodlarına bax.
+3. Terminalda `nslookup google.com` yaz və IP ünvanını tap.
 
-## 🎯 Status kodları (yadda saxla)
+## Yoxlama
 
-- `200` — Oldu ✅
-- `301/302` — Başqa yerə köçüb, ora get ➡️
-- `404` — Belə şey yoxdur 🤷
-- `500` — Serverdə (mətbəxdə) nəsə yandı 🔥
-- `401/403` — İcazən yoxdur 🚫
-
-## ✅ Gün sonu yoxlama
-
-1. DNS nə edir? (bir cümlə ilə)
-2. Client ilə server arasındakı fərq nədir?
-3. `404` nə deməkdir?
-4. `https://shop.az/mehsullar?reng=qirmizi` URL-də domen, yol və parametr hansıdır?
-5. Terminalda `python --version` işləyirmi?
+1. Brauzer `site.az` yazılandan HTML görənə qədər hansı addımları keçir?
+2. `404` və `500` arasındakı fərq nədir? Hansı serverin günahıdır?
+3. `https://shop.az/mehsul?id=5` URL-də domen, yol və parametr hansıdır?

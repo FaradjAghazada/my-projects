@@ -1,119 +1,94 @@
-# Gün 13 — Git, GitHub və Hosting: saytı internetə çıxarmaq 🌍
+# Gün 13 — Git, GitHub, hosting
 
-## 1️⃣ Git — zaman maşını ⏳
+**Məqsəd:** kodu versiyalamaq və saytı 24/7 işləyən serverə çıxarmaq.
 
-Oyunda **save** edirsən ki, ölsən geri qayıdasan. **Git** kodun üçün save sistemidir.
-**GitHub** — save-lərin buludda saxlandığı yer (həm də hosting-lər kodu oradan götürür).
+## 1. Git
+
+Git kodun dəyişiklik tarixçəsini saxlayır. GitHub isə bu tarixçənin onlayn nüsxəsidir. Hosting kodu GitHub-dan götürür.
 
 ```bash
-git init                          # bu qovluqda zaman maşınını işə sal
-git status                        # nə dəyişib?
-git add .                         # bütün dəyişiklikləri "save qutusuna" qoy
-git commit -m "Login əlavə etdim" # save et (aydın mesajla!)
-git log --oneline                 # bütün save-lər
+git init
+git status                    # nə dəyişib
+git add .
+git commit -m "Login əlavə olundu"
+git log --oneline
 ```
 
-GitHub-a yükləmək:
-1. github.com → **New repository** → ad ver (məs. `menim-saytim`) → Create.
-2. Göstərilən əmrləri icra et:
+İlk dəfə GitHub-a yükləmək (github.com → **New repository** → boş repo):
 ```bash
-git remote add origin https://github.com/ISTIFADECI/menim-saytim.git
+git remote add origin https://github.com/ISTIFADECI/qeydler.git
 git branch -M main
 git push -u origin main
 ```
-Sonrakı dəyişikliklər üçün: `git add . && git commit -m "..." && git push`
+Sonra hər dəfə: `git add . && git commit -m "..." && git push`.
 
-⚠️ Push etməzdən əvvəl yoxla: `.env` və `venv/` `.gitignore`-dadır? (`git status`-da görünməməlidir)
+Push etməzdən əvvəl `git status`-a bax: `.env`, `venv/`, `sayt.db` siyahıda olmamalıdır. Əgər `.env` artıq bir dəfə push olunubsa, içindəki açarları **dəyiş**. Faylı silmək kifayət deyil, çünki tarixçədə qalır.
 
-## 2️⃣ Hosting nədir? 🏢
-
-İndiyə qədər sayt **sənin kompüterində** idi. Kompüteri söndürsən — sayt da sönür.
-**Hosting** = heç vaxt sönməyən, internetə qoşulu başqasının kompüterini **icarəyə götürmək**.
+## 2. Hosting növləri
 
 | Növ | Nümunə | Nə vaxt |
 |---|---|---|
-| **Statik hosting** | GitHub Pages, Netlify, Vercel | Yalnız HTML/CSS/JS (backend yoxdur) |
-| **PaaS** (hazır platforma) | **Render**, PythonAnywhere, Railway, Fly.io | Python backend — **başlanğıc üçün ən yaxşısı** |
-| **VPS** (boş server) | DigitalOcean, Hetzner, AWS EC2 | Hər şeyi özün qurursan (Linux, Nginx…) — sonrakı səviyyə |
+| Statik | GitHub Pages, Netlify | Yalnız HTML/CSS/JS |
+| PaaS | **Render**, PythonAnywhere, Railway | Backend: server idarəsi lazım deyil |
+| VPS | Hetzner, DigitalOcean | Linux, Nginx və təhlükəsizliyi özün idarə edirsən |
 
-Biz **Render** istifadə edəcəyik (pulsuz plan var, GitHub-dan avtomatik yükləyir).
-Alternativ: **PythonAnywhere** — Python üçün çox asan, pulsuz plan var.
+Biz **Render** istifadə edirik: pulsuz plan var, GitHub-a `push` edəndə avtomatik yenilənir, HTTPS avtomatikdir.
 
-## 3️⃣ Saytı hosting-ə hazırlamaq
+## 3. Saytı hazırlamaq
 
-### a) Gunicorn — əsl ofisiant
-`app.run(debug=True)` — **inkişaf üçün** oyuncaq serverdir. Real trafikə dözmür.
-Real serverdə **gunicorn** işlədirik:
-
+**a) Production server.** `app.run()` yalnız inkişaf üçündür. Real serverdə `gunicorn` işləyir:
 ```bash
-pip install gunicorn
-pip freeze > requirements.txt     # gunicorn da siyahıda olmalıdır!
+pip install gunicorn && pip freeze > requirements.txt
 ```
-Yoxla (Mac/Linux): `gunicorn app:app` → `app.py` faylındakı `app` obyektini işə sal.
-(Windows-da gunicorn işləmir — narahat olma, Render Linux-dadır.)
+Start əmri: `gunicorn app:app` (`app.py` faylındakı `app` obyekti). Windows-da gunicorn işləmir, bu normaldır, çünki Render Linux-dadır.
 
-### b) Konfiqurasiya mühitdən gəlsin
+**b) Konfiqurasiya mühitdən gəlsin:**
 ```python
-app.secret_key = os.environ.get("SECRET_KEY", "dev")
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///sayt.db")
+app.secret_key = os.environ["SECRET_KEY"]
+
+url = os.environ.get("DATABASE_URL", "sqlite:///sayt.db")
+app.config["SQLALCHEMY_DATABASE_URI"] = url.replace("postgres://", "postgresql://", 1)
 ```
 
-### c) Debug söndürülsün
-```python
-if __name__ == "__main__":
-    app.run(debug=True)           # bu yalnız `python app.py` ilə işləyəndə; gunicorn buna baxmır ✅
-```
-
-## 4️⃣ Render-ə yükləmək (addım-addım)
-
-1. https://render.com → **GitHub ilə qeydiyyat**.
-2. **New → Web Service** → GitHub repo-nu seç.
-3. Doldur:
-   - **Runtime:** Python 3
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `gunicorn app:app`
-   - **Instance Type:** Free
-4. **Environment Variables** bölməsi → `.env`-dəki hər şeyi bura əlavə et:
-   `SECRET_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` ...
-5. **Create Web Service** → loqlara bax (Logs) → bir neçə dəqiqə sonra:
-   **`https://menim-saytim.onrender.com`** 🎉🎉🎉
-
-Bundan sonra hər `git push` → Render **avtomatik** yenidən yükləyir (auto-deploy).
-
-### ⚠️ Verilənlər bazası haqqında vacib qeyd
-Pulsuz hosting-lərdə disk **müvəqqətidir** — hər yenidən yükləmədə `sayt.db` silinə bilər!
-Həll: Render-də **New → PostgreSQL** yarat → onun **Internal Database URL**-ini kopyala →
-Web Service-in Environment-ə `DATABASE_URL` kimi əlavə et. Və:
+**c) Baza.** Render-in pulsuz diski hər deploy-da sıfırlanır, yəni SQLite faylı silinir. Hosting-də PostgreSQL lazımdır:
 ```bash
 pip install psycopg2-binary && pip freeze > requirements.txt
 ```
-```python
-url = os.environ.get("DATABASE_URL", "sqlite:///sayt.db")
-url = url.replace("postgres://", "postgresql://", 1)   # köhnə formatı düzəlt
-app.config["SQLALCHEMY_DATABASE_URI"] = url
-```
-(Alternativlər: Neon, Supabase — pulsuz PostgreSQL.)
 
-## 5️⃣ Xəta olanda nə etməli? 🔧
+## 4. Render-də deploy
 
-1. **Logs**-a bax — cavabın 90%-i oradadır.
-2. Tez-tez rast gəlinən səhvlər:
-   - `ModuleNotFoundError` → paket `requirements.txt`-də yoxdur.
-   - `Application failed to respond` → Start Command səhvdir (`gunicorn app:app`).
-   - `KeyError: 'SECRET_KEY'` → Environment Variable əlavə etməmisən.
-   - Sayt yavaş açılır → pulsuz plan istifadə olunmayanda "yatır", ilk açılış ~30-50 saniyə çəkir. Normaldır.
+1. render.com → GitHub ilə daxil ol.
+2. **New → PostgreSQL** → Free → yarat → **Internal Database URL**-i kopyala.
+3. **New → Web Service** → reponu seç:
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `gunicorn app:app`
+   - Instance: Free
+4. **Environment** bölməsi: `SECRET_KEY`, `DATABASE_URL` (2-ci addımdan), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
+5. **Create** → **Logs**-a bax → sayt `https://qeydler-xxxx.onrender.com` ünvanında açılır.
 
-## 🎯 Tapşırıq
+Bundan sonra hər `git push` avtomatik deploy edir.
 
-1. Layihəni GitHub-a yüklə (`.env` olmadan!).
-2. Render-də Web Service yarat və sayt `onrender.com` ünvanında açılsın.
-3. Environment Variables əlavə et, Telegram bildirişi hosting-dən də işləsin.
-4. Kiçik dəyişiklik et → `git push` → avtomatik yenilənməni izlə.
-5. Bonus: PostgreSQL qoş.
+## 5. Deploy xətaları
 
-## ✅ Gün sonu yoxlama
+Həmişə əvvəlcə **Logs**-a bax.
 
-1. `git commit` və `git push` fərqi?
-2. Statik hosting ilə PaaS fərqi nədir?
-3. Niyə `app.run()` yox, `gunicorn` istifadə edirik?
-4. Hosting-də API açarları harada saxlanılır?
+| Logda | Səbəb |
+|---|---|
+| `ModuleNotFoundError` | Paket `requirements.txt`-də yoxdur, `pip freeze` et |
+| `KeyError: 'SECRET_KEY'` | Environment dəyişəni əlavə edilməyib |
+| `Failed to find attribute 'app'` | Start Command səhvdir |
+| Sayt ilk dəfə 30–50 san gec açılır | Pulsuz plan istifadə olunmayanda yatır. Xəta deyil |
+
+## Tapşırıq
+
+1. Layihəni GitHub-a yüklə. `.env` reponun içində olmamalıdır.
+2. Render-də PostgreSQL və Web Service yarat, environment dəyişənlərini əlavə et.
+3. Canlı saytda qeydiyyatdan keç, qeyd yarat, Telegram mesajını yoxla.
+4. Kiçik bir dəyişiklik et → `push` → avtomatik deploy-u Logs-da izlə.
+
+## Yoxlama
+
+1. `commit` və `push` arasındakı fərq nədir?
+2. Niyə `app.run()` yox, `gunicorn`?
+3. Render-də SQLite niyə yararsızdır?
+4. Deploy uğursuz oldu. İlk nəyə baxırsan?
