@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Qeydlərim{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a class="logo" href="{{ url_for('index') }}">📝 Qeydlərim</a>
+            <div class="linkler">
+                <a href="{{ url_for('elaqe') }}">Əlaqə</a>
+                {% if istifadeci %}
+                    <a href="{{ url_for('yeni') }}">+ Yeni yazı</a>
+                    <form action="{{ url_for('cixis') }}" method="POST" class="inline">
+                        <button class="link">Çıxış</button>
+                    </form>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Daxil ol</a>
+                    <a href="{{ url_for('qeydiyyat') }}">Qeydiyyat</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main>
+        {% with mesajlar = get_flashed_messages(with_categories=true) %}
+            {% for kateqoriya, m in mesajlar %}
+                <div class="bildiris {{ kateqoriya }}">{{ m }}</div>
+            {% endfor %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer>© 2026 — 14 günə öyrəndim 🚀</footer>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

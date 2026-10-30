@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+    <h1>Salam{% if istifadeci %}, {{ istifadeci.email }}{% endif %}! 👋</h1>
+    {% if temperatur is not none %}
+        <p class="hava">🌤️ Bakıda indi: <strong>{{ temperatur }}°C</strong></p>
+    {% endif %}
+</section>
+
+<h2>Yazılar (səhifədən)</h2>
+<div class="kartlar">
+    {% for y in yazilar %}
+        <article class="kart">
+            <h3><a href="{{ url_for('yazi', id=y.id) }}">{{ y.basliq }}</a></h3>
+            <p>{{ y.metn[:120] }}{% if y.metn|length > 120 %}…{% endif %}</p>
+            <small>{{ y.muellif.email }} · {{ y.yaradilib.strftime('%d.%m.%Y %H:%M') }}</small>
+        </article>
+    {% else %}
+        <p>Hələ yazı yoxdur. {% if istifadeci %}<a href="{{ url_for('yeni') }}">İlkini yaz!</a>{% endif %}</p>
+    {% endfor %}
+</div>
+
+<h2>Yazılar (API + fetch ilə)</h2>
+<button id="yukle" class="duyme">API-dən yüklə</button>
+<ul id="api-siyahi"></ul>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock %}

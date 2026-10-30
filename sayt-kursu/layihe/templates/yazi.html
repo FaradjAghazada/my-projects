@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ yazi.basliq }}{% endblock %}
+{% block content %}
+<article class="kart">
+    <h1>{{ yazi.basliq }}</h1>
+    <small>{{ yazi.muellif.email }} · {{ yazi.yaradilib.strftime('%d.%m.%Y %H:%M') }}</small>
+    <p class="metn">{{ yazi.metn }}</p>
+    {% if istifadeci and istifadeci.id == yazi.muellif_id %}
+        <form action="{{ url_for('sil', id=yazi.id) }}" method="POST"
+              onsubmit="return confirm('Silinsin?')">
+            <button class="duyme qirmizi">Sil</button>
+        </form>
+    {% endif %}
+</article>
+<p><a href="{{ url_for('index') }}">← Geri</a></p>
+{% endblock %}
